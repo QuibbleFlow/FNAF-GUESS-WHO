@@ -69,10 +69,10 @@ http-server
 ## 🔧 Key Changes for Internet Play
 
 ### ✅ What Was Changed
-- **Room code system** - 6-character codes instead of username entry
+- **Username system** - use usernames instead of codes
 - **Better STUN servers** - Multiple Google STUN servers
 - **Public TURN servers** - OpenRelay for restrictive networks
-- **Improved UI** - Shows room code prominently when hosting
+- **Improved UI** - Shows host username prominently when hosting
 - **Better error messages** - Clear connection feedback
 
 ### ✅ What Still Works
@@ -98,7 +98,7 @@ Players can:
 2. No VPN needed
 3. No local network required
 4. Works on mobile, tablet, desktop
-5. Generate infinite room codes for infinite games
+5. Use as many usernames as you like for infinite games
 
 ---
 
@@ -114,7 +114,7 @@ Players can:
 
 ### If Connection Fails
 1. Both players refresh the page
-2. Generate a new room code
+2. Choose a new host name
 3. Try a different network (mobile hotspot)
 4. Check browser console for errors (F12)
 
@@ -149,7 +149,7 @@ All files must stay together in the same deployment folder.
 
 ## 💡 Pro Tips
 
-1. **Multiple games at once** - Different room codes allow parallel games
+1. **Multiple games at once** - Different host names allow parallel games
 2. **Mobile-friendly** - Works great on phones (tested!)
 3. **Low bandwidth** - Only sends game state, not streaming video
 4. **Fast connections** - Room join takes 1-2 seconds typically
