@@ -512,7 +512,7 @@
             return;
         }
         if(!roomCode || roomCode.length === 0) {
-            alert("Please enter a room code!");
+            alert("Please enter a host username!");
             return;
         }
         
@@ -535,7 +535,7 @@
             conn.on('data', (data) => handleData(data));
             
             conn.on('error', (err) => {
-                alert("Could not connect to room. Check the room code and try again.");
+                alert("Could not connect. Check the host username and try again.");
                 updatePeerStatus('connection failed', true);
                 showScreen('screen-join');
             });
