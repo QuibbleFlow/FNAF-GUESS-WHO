@@ -49,8 +49,8 @@ http-server
 ### Player 1: Host a Game
 ```
 1. Click "HOST ROOM"
-2. Get the 6-character room code (e.g., "AB3XY2")
-3. Share the code with your friend (Discord, SMS, etc.)
+2. Your username becomes the host name (e.g. "FNAFFan123")
+3. Tell your friend what it is
 4. Select board and pick your animatronic
 5. Wait for opponent
 ```
@@ -58,7 +58,7 @@ http-server
 ### Player 2: Join the Game
 ```
 1. Click "JOIN ROOM"
-2. Enter the room code
+2. Enter the host's username
 3. Click "CONNECT"
 4. Pick your animatronic
 5. Play!
@@ -139,7 +139,7 @@ All files must stay together in the same deployment folder.
 
 | Problem | Solution |
 |---------|----------|
-| "Room code already in use" | Generate new room code (click HOST again) |
+| "Username already in use" | Choose a different username or click HOST again |
 | Connection times out | Check both players have internet, try different network |
 | Images not loading | Verify `Animatronics/` folder exists in deployment |
 | Audio not working | Click page once, some browsers require user interaction |

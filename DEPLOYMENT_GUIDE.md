@@ -7,8 +7,8 @@ A peer-to-peer multiplayer "Guess Who?" game themed around Five Nights at Freddy
 ### Host a Room
 1. Enter your username and click "Enter Terminal"
 2. Click **"HOST ROOM"**
-3. A 6-character **room code** will be generated and displayed
-4. Share this code with your friend (Discord, email, etc.)
+3. Your **username** becomes the host identifier
+4. Share your username with your friend (Discord, email, etc.)
 5. Select the animatronics board you want to play with
 6. Pick your secret animatronic
 7. Wait for your opponent to join and make their choice
@@ -16,7 +16,7 @@ A peer-to-peer multiplayer "Guess Who?" game themed around Five Nights at Freddy
 ### Join a Room
 1. Enter your username and click "Enter Terminal"
 2. Click **"JOIN ROOM"**
-3. Enter the room code your friend shared
+3. Enter the host's username (it is case‑insensitive)
 4. Click **"CONNECT"**
 5. Select your secret animatronic
 6. Try to guess your opponent's choice!
@@ -52,7 +52,7 @@ netlify deploy
 - Works on any internet connection (home, mobile, public WiFi)
 
 ### Improvements Made
-✅ Room code system (easier than sharing usernames)
+✅ Host‑username system (no codes – just tell a friend your name)
 ✅ Enhanced STUN/TURN server configuration
 ✅ Better error handling for connection issues
 ✅ Works globally without local network requirements
@@ -86,12 +86,12 @@ netlify deploy
 ## 🐛 Troubleshooting
 
 ### "Connection Failed"
-- Verify the room code is spelled correctly (case doesn't matter)
+- Verify the host username is spelled correctly (case doesn't matter)
 - Check both players have internet connection
 - Some corporate networks may block WebRTC - try mobile hotspot
 
-### "Room Code Already in Use"
-- Room codes can conflict rarely - just generate a new one
+### "Username Already in Use"
+- If you see this the chosen host name is already taken; pick a different username or click HOST again
 
 ### Audio Not Playing
 - Check browser audio permissions
