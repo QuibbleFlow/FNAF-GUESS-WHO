@@ -2,50 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FNAF Guess Who - Visual Architect XL (Fixed)</title>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
         :root { --fnaf-red: #800; --fnaf-bright-red: #f00; --fnaf-bg: #050505; --fnaf-green: #0f0; --fnaf-panel: rgba(15, 15, 15, 0.98); }
-        html, body { height: 100%; width: 100%; }
         body { 
             background-image: url('background.jpeg'); background-size: cover; background-attachment: fixed;
             background-color: var(--fnaf-bg); color: #e0e0e0; font-family: 'Courier New', monospace; 
             margin: 0; overflow: hidden; user-select: none; 
-            animation: bgmotion 120s linear infinite, glitch 15s infinite;
         }
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
-        body.flick::before { animation: flicker 0.15s; }
-        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); z-index: 2000; }
-        .active { display: flex; }
-        .menu-box { background: #111; border: 2px solid var(--fnaf-red); padding: 30px; border-radius: 10px; text-align: center; width: 600px; box-shadow: 0 0 30px rgba(128, 0, 0, 0.5); animation: border-flicker 4s infinite; }
-        
-        #zoom-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; z-index:6000; opacity:0; pointer-events:none; transition: opacity 0.25s ease-in-out; }
-        #zoom-overlay.show { opacity:1; pointer-events:auto; }
-        #zoom-content { text-align:center; max-width:85%; max-height:85%; }
-        #zoom-content img { max-width:100%; max-height:100%; border:2px solid #fff; }
-        #zoom-name { color:#fff; margin-top:10px; font-size:18px; }
-        .zoom-btn { position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.6); color:#fff; padding:2px 4px; border-radius:3px; font-size:12px; cursor:pointer; }
-        .zoom-btn:hover { background:rgba(255,255,255,0.2); }
-        .zoom-btn-mini { position:absolute; top:3px; right:3px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:2px 3px; border-radius:3px; cursor:pointer; }
-        .zoom-btn-mini:hover { background:rgba(255,255,255,0.2); }        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
         #top-left-ctrl { position: fixed; top: 10px; left: 10px; z-index: 3000; display: none; }
         #bottom-left-ctrl { position: fixed; bottom: 10px; left: 10px; z-index: 3000; }
         .tiny-btn { background: rgba(20,20,20,0.8); color: #666; border: 1px solid #333; padding: 5px 10px; font-size: 10px; cursor: pointer; text-transform: uppercase; margin-left: 5px; }
         .tiny-btn:hover { color: #fff; border-color: var(--fnaf-red); }
-        button:focus { outline: 2px solid var(--fnaf-green); outline-offset: 2px; }
-        .menu-btn:focus { outline: 2px solid var(--fnaf-green); outline-offset: 2px; }
-        /* responsive adjustments */
-        @media (max-width: 768px) {
-            .menu-box { width: 90%; padding: 20px; }
-            .menu-box input { width: 100%; }
-            #editor-wrapper, #board-wrapper { left: 10px; right: 10px; top: 20px; bottom: 80px; }
-            #target-panel { width: 80%; left: 50%; transform: translateX(-50%) translateY(-50%); height: auto; max-height: 80vh; }
-            .char-grid { grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); }
-        }
-
-        .menu-box { animation: border-flicker 4s infinite; }
-        @keyframes border-flicker { 0%,100%{border-color: var(--fnaf-red);} 50%{border-color: var(--fnaf-bright-red);} }
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); z-index: 2000; }
+        .active { display: flex; }
+        .menu-box { background: #111; border: 2px solid var(--fnaf-red); padding: 30px; border-radius: 10px; text-align: center; width: 600px; box-shadow: 0 0 30px rgba(128, 0, 0, 0.5); }
         
         /* New Connection Status UI */
         #conn-status { position: fixed; top: 10px; right: 10px; font-size: 10px; color: #444; z-index: 4000; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px; }
@@ -95,22 +68,9 @@
         .cat-toggle-btn.off { background: #500; border-color: #f00; }
         .history-ctrl { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
         .highlight-action { outline: 3px solid var(--fnaf-green); outline-offset: 5px; z-index: 50; }
-        @keyframes bgmotion { from {background-position:0 0;} to {background-position:2000px 0;} }
-        @keyframes flicker { 0%{opacity:0.8;} 25%{opacity:0.3;} 50%{opacity:0.8;} 100%{opacity:0.8;} }
-        @keyframes scanlines { 0%{opacity:0.15;} 50%{opacity:0.05;} 100%{opacity:0.15;} }
-        @keyframes glitch { 0%,100%{transform: translate(0);} 3%{transform: translate(-5px,-3px);} 6%{transform: translate(4px,2px);} 9%{transform: translate(-2px,5px);} 12%{transform: translate(3px,-4px);} 15%{transform: translate(0);} }
-        @keyframes border-flicker { 0%,100%{border-color: var(--fnaf-red);} 50%{border-color: var(--fnaf-bright-red);} }
     </style>
 </head>
 <body onmouseup="stopDragSelect()">
-
-<!-- zoom overlay for card magnification -->
-<div id="zoom-overlay" onclick="if(event.target===this)hideZoom()">
-    <div id="zoom-content">
-        <img id="zoom-img" src="" alt="">
-        <div id="zoom-name"></div>
-    </div>
-</div>
 <audio id="bg-audio" loop><source src="background-music.mp3" type="audio/mpeg"></audio>
 <audio id="sfx-btn"><source src="button.mp3" type="audio/mpeg"></audio>
 
@@ -125,20 +85,10 @@
 <div id="bottom-left-ctrl"><button class="tiny-btn" onclick="factoryReset()">FACTORY RESET</button></div>
 
 <div id="screen-login" class="screen active"><div class="menu-box"><h1 style="color: var(--fnaf-red);">FNAF GUESS WHO</h1><input type="text" id="username-input" style="background:#000; border:1px solid #444; color:var(--fnaf-green); padding:10px; text-align:center;" placeholder="ENTER USERNAME"><button class="menu-btn" onclick="confirmLogin()">ENTER TERMINAL</button></div></div>
-<div id="screen-main" class="screen"><div class="menu-box"><h2 id="welcome-msg" style="color: var(--fnaf-green);">WELCOME</h2><div id="reconnect-prompt" style="display:none; margin-bottom: 20px; padding: 15px; border: 1px solid var(--fnaf-green);"><p id="resume-text" style="font-size: 12px; color: #fff;">UNFINISHED MATCH DETECTED.</p><button class="menu-btn" style="background: #040;" onclick="resumeSession()">RECONNECT TO GAME</button><button class="menu-btn" style="font-size: 10px; height: 30px; padding: 0;" onclick="clearSession()">DISCARD SESSION</button></div><button class="menu-btn" onclick="showScreen('screen-join')">JOIN ROOM</button><button class="menu-btn" onclick="hostRoom()">HOST ROOM</button><button class="menu-btn" onclick="openBoardManager()">BOARDS EDITOR</button><button class="menu-btn" onclick="showScreen('screen-help')">HOW TO PLAY</button></div></div>
-<div id="screen-join" class="screen"><div class="menu-box"><h2 style="color: var(--fnaf-red);">JOIN ROOM</h2><p style="font-size: 10px; color: #666; margin-bottom: 10px;">ENTER THE HOST USERNAME YOUR FRIEND IS USING</p><input type="text" id="join-room-id" style="background:#000; border:1px solid #444; color:var(--fnaf-green); padding:10px; width:80%; text-transform: uppercase; letter-spacing: 2px; text-align: center; font-size: 16px; font-weight: bold;" placeholder="HOST NAME" maxlength="32"><button class="menu-btn" onclick="connectToPeer()">CONNECT</button><button class="menu-btn" onclick="showScreen('screen-main')">BACK</button></div></div>
-<div id="screen-lobby" class="screen"><div class="menu-box"><h2 id="lobby-title" style="color: var(--fnaf-red);">LOBBY</h2><div id="room-code-display" style="background: #1a1a1a; border: 2px solid var(--fnaf-green); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; display: none;"><p style="font-size: 11px; color: #888; margin: 0 0 8px 0;">HOST USERNAME</p><div style="font-size: 28px; font-weight: bold; letter-spacing: 4px; color: var(--fnaf-green); font-family: 'Courier New', monospace;" id="room-code-text">---</div><p style="font-size: 10px; color: #666; margin: 8px 0 0 0;">SHARE THIS NAME WITH YOUR FRIEND</p></div><div id="player-roster" class="data-list"></div><div id="host-controls" style="display:none;"><select id="lobby-board-select" style="width:100%; background:#222; color:white; padding:10px; margin-bottom:20px;"></select><button class="menu-btn" id="start-btn" onclick="signalStart()">START MATCH</button></div><div id="guest-waiting" style="display:none; color: #666; font-size: 12px; margin-bottom: 20px;">WAITING FOR HOST TO START...</div><button class="menu-btn" onclick="disconnect()">DISCONNECT</button></div></div>
+<div id="screen-main" class="screen"><div class="menu-box"><h2 id="welcome-msg" style="color: var(--fnaf-green);">WELCOME</h2><div id="reconnect-prompt" style="display:none; margin-bottom: 20px; padding: 15px; border: 1px solid var(--fnaf-green);"><p id="resume-text" style="font-size: 12px; color: #fff;">UNFINISHED MATCH DETECTED.</p><button class="menu-btn" style="background: #040;" onclick="resumeSession()">RECONNECT TO GAME</button><button class="menu-btn" style="font-size: 10px; height: 30px; padding: 0;" onclick="clearSession()">DISCARD SESSION</button></div><button class="menu-btn" onclick="showScreen('screen-join')">JOIN ROOM</button><button class="menu-btn" onclick="hostRoom()">HOST ROOM</button><button class="menu-btn" onclick="openBoardManager()">BOARDS EDITOR</button></div></div>
+<div id="screen-join" class="screen"><div class="menu-box"><h2 style="color: var(--fnaf-red);">JOIN ROOM</h2><p style="font-size: 10px; color: #666; margin-bottom: 10px;">ENTER YOUR FRIEND'S EXACT USERNAME</p><input type="text" id="join-room-id" style="background:#000; border:1px solid #444; color:var(--fnaf-green); padding:10px; width:80%;" placeholder="FRIEND'S USERNAME"><button class="menu-btn" onclick="connectToPeer()">CONNECT</button><button class="menu-btn" onclick="showScreen('screen-main')">BACK</button></div></div>
+<div id="screen-lobby" class="screen"><div class="menu-box"><h2 id="lobby-title" style="color: var(--fnaf-red);">LOBBY</h2><div id="player-roster" class="data-list"></div><div id="host-controls" style="display:none;"><select id="lobby-board-select" style="width:100%; background:#222; color:white; padding:10px; margin-bottom:20px;"></select><button class="menu-btn" id="start-btn" onclick="signalStart()">START MATCH</button></div><div id="guest-waiting" style="display:none; color: #666; font-size: 12px; margin-bottom: 20px;">WAITING FOR HOST TO START...</div><button class="menu-btn" onclick="disconnect()">DISCONNECT</button></div></div>
 <div id="screen-boards" class="screen"><div class="menu-box"><h2 style="color: var(--fnaf-red);">YOUR BOARDS</h2><div id="board-list" class="data-list"></div><input type="text" id="new-board-name" style="background:#000; border:1px solid #444; color:var(--fnaf-green); padding:10px;" placeholder="NEW NAME"><button class="menu-btn" onclick="createNewBoard()">CREATE NEW</button><button class="menu-btn" onclick="showScreen('screen-main')">BACK</button></div></div>
-
-<div id="screen-help" class="screen"><div class="menu-box" style="width:600px;">
-        <h2 style="color: var(--fnaf-red);">HOW TO PLAY</h2>
-        <p style="font-size: 12px; text-align:left;">1. Enter a username and either host a room or join a friend.<br>
-        2. In the lobby choose a board with animatronics to include.<br>
-        3. When the match starts, pick your animatronic secretly.<br>
-        4. After both players have chosen, flip cards to mark outs and guess your opponent's character.<br>
-        5. The first correct guess wins!</p>
-        <button class="menu-btn" onclick="showScreen('screen-main')">BACK</button>
-    </div></div>
 
 <div id="screen-editor" class="screen">
     <div id="editor-wrapper" onmouseleave="stopDragSelect()">
@@ -224,9 +174,7 @@
 </div>
 
 <script>
-    // ===== CONFIGURATION & CONSTANTS =====
-    
-    const GAME_CATEGORIES = [
+    const categories = [
         { id: "fnaf1", title: "FNAF 1", range: [0, 8] },
         { id: "fnaf2", title: "FNAF 2", range: [9, 23] },
         { id: "fnaf3", title: "FNAF 3", range: [24, 30] },
@@ -237,18 +185,8 @@
         { id: "sb", title: "SECURITY BREACH", range: [83, 96] },
         { id: "hw", title: "HELP WANTED 1/2", range: [97, 102] }
     ];
-    
-    const STORAGE_KEYS = {
-        USER: 'fnaf_user',
-        SESSION: 'fnaf_active_session',
-        BOARDS: 'fnaf_boards_',
-        VOLUME: 'fnaf_volume'
-    };
-    
-    const DEFAULT_VOLUME = 0.2;
-    const GAME_MODES = { CHOOSE: 'choose', GUESS: 'guess' };
 
-    const ANIMATRONICS_DATA = [
+    const animData = [
         {name: "Freddy Fazbear", img: "Freddy Fazbear.webp"}, {name: "Bonnie", img: "Bonnie.webp"}, {name: "Chica", img: "Chica.webp"}, {name: "Foxy", img: "Foxy.webp"}, {name: "Golden Freddy", img: "Golden Freddy.webp"}, {name: "Phone Guy", img: "Phone Guy.webp"}, {name: "Mr. Cupcake", img: "Mr. Cupcake.webp"}, {name: "Desk Fan", img: "Desk Fan.webp"}, {name: "Endo-01", img: "Endo-01.webp"},
         {name: "Toy Freddy", img: "Toy Freddy.webp"}, {name: "Toy Bonnie", img: "Toy Bonnie.webp"}, {name: "Toy Chica", img: "Toy Chica.webp"}, {name: "Toy Mangle", img: "Toy Mangle.webp"}, {name: "Toy Cupcake", img: "Toy Cupcake.webp"}, {name: "Balloon Boy", img: "Balloon Boy.webp"}, {name: "Jay Jay", img: "Jay Jay.webp"}, {name: "Marionette", img: "Marionette.webp"}, {name: "Withered Freddy", img: "Withered Freddy.webp"}, {name: "Withered Bonnie", img: "Withered Bonnie.webp"}, {name: "Withered Chica", img: "Withered Chica.webp"}, {name: "Withered Foxy", img: "Withered Foxy.webp"}, {name: "Shadow Freddy", img: "Shadow Freddy.webp"}, {name: "Shadow Bonnie", img: "Shadow Bonnie.webp"}, {name: "Endo-02", img: "Endo-02.webp"},
         {name: "Springtrap", img: "Springtrap.webp"}, {name: "Phantom Freddy", img: "Phantom Freddy.webp"}, {name: "Phantom Chica", img: "Phantom Chica.webp"}, {name: "Phantom Foxy", img: "Phantom Foxy.webp"}, {name: "Phantom Mangle", img: "Phantom Mangle.webp"}, {name: "Phantom Balloon Boy", img: "Phantom Balloon Boy.webp"}, {name: "Phantom Puppet", img: "Phantom Puppet.webp"},
@@ -260,47 +198,27 @@
         {name: "Glitchtrap", img: "Glitchtrap.webp"}, {name: "Mystic Hippo", img: "Mystic Hippo.webp"}, {name: "Carnie", img: "Carnie.webp"}, {name: "Grimm Foxy", img: "Grimm Foxy.webp"}, {name: "Dreadbear", img: "Dreadbear.webp"}, {name: "Plushbabies", img: "Plushbabies.webp"} 
     ];  
 
-    const MASTER_ROSTER = ANIMATRONICS_DATA.map((data, i) => ({ id: i, name: data.name, img: `Animatronics/${data.img}`, enabled: true }));
+    const masterRoster = animData.map((data, i) => ({ id: i, name: data.name, img: `Animatronics/${data.img}`, enabled: true }));
 
-    // ===== GLOBAL STATE VARIABLES =====
     let savedBoards = {};
-    let myName = localStorage.getItem(STORAGE_KEYS.USER) || "";
+    let myName = localStorage.getItem('fnaf_user') || "";
     let peer = null, conn = null, isHost = false, roomPlayers = [], activeRoster = [], isDragging = false, dragTargetState = null, lastToggledId = null, myTargetForOpponent = null, opponentTargetForMe = null, currentBoardName = "", currentMatchMode = ""; 
     let flippedCards = new Set();
     let myTargetObj = null;
     let historyStack = [], redoStack = [];
 
-    // ===== PEER-TO-PEER NETWORK CONFIGURATION =====
-    
-    function generateRoomCode() {
-        return Math.random().toString(36).substring(2, 8).toUpperCase();
-    }
-
-    function normalizePeerID(code) {
-        // usernames/peer IDs are treated case‑insensitively and only alphanumerics
-        return code.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-    }
-
+    // GLOBAL PEER CONFIGURATION
     const peerConfig = {
         config: {
             'iceServers': [
-                // Google STUN servers
                 { url: 'stun:stun.l.google.com:19302' },
                 { url: 'stun:stun1.l.google.com:19302' },
                 { url: 'stun:stun2.l.google.com:19302' },
                 { url: 'stun:stun3.l.google.com:19302' },
-                { url: 'stun:stun4.l.google.com:19302' },
-                // Additional public STUN servers
-                { url: 'stun:stun.stunprotocol.org:3478' },
-                { url: 'stun:stun.l.google.com:19302' },
-                { url: 'stun:stun.sip.us' },
-                // Public TURN servers (fallback for restrictive NAT)
-                { url: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-                { url: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-                { url: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+                { url: 'stun:stun4.l.google.com:19302' }
             ]
         },
-        debug: 1
+        debug: 1 // Reduces console noise while keeping errors
     };
 
     function updatePeerStatus(status, isError = false) {
@@ -309,17 +227,15 @@
         el.className = isError ? 'status-offline' : (status === 'connected' ? 'status-online' : '');
     }
 
-    // ===== USER AUTHENTICATION & SESSION MANAGEMENT =====
-    
     function loadUserData() {
         if(!myName) return;
-        const storageKey = `${STORAGE_KEYS.BOARDS}${myName}`;
-        savedBoards = JSON.parse(localStorage.getItem(storageKey)) || { "Main Roster": [...MASTER_ROSTER] };
+        const storageKey = `fnaf_boards_${myName}`;
+        savedBoards = JSON.parse(localStorage.getItem(storageKey)) || { "Main Roster": [...masterRoster] };
     }
 
     function saveUserData() {
         if(!myName) return;
-        const storageKey = `${STORAGE_KEYS.BOARDS}${myName}`;
+        const storageKey = `fnaf_boards_${myName}`;
         localStorage.setItem(storageKey, JSON.stringify(savedBoards));
     }
 
@@ -327,7 +243,7 @@
         const input = document.getElementById('username-input').value.trim();
         if(!input) return;
         myName = input;
-        localStorage.setItem(STORAGE_KEYS.USER, myName);
+        localStorage.setItem('fnaf_user', myName);
         loadUserData();
         initSession();
     }
@@ -345,7 +261,7 @@
             if(!confirm("Active game will be lost. Logout?")) return;
             disconnect(true);
         }
-        localStorage.removeItem(STORAGE_KEYS.USER);
+        localStorage.removeItem('fnaf_user');
         myName = "";
         document.getElementById('username-input').value = "";
         document.getElementById('top-left-ctrl').style.display = 'none';
@@ -361,7 +277,6 @@
     }
 
     window.onload = () => {
-        myName = localStorage.getItem(STORAGE_KEYS.USER) || "";
         if(myName) {
             loadUserData();
             initSession();
@@ -369,7 +284,7 @@
     };
 
     function saveSession() {
-        if(currentMatchMode === "" && !localStorage.getItem(STORAGE_KEYS.SESSION)) return;
+        if(currentMatchMode === "" && !localStorage.getItem('fnaf_active_session')) return;
         const session = {
             isHost,
             activeRoster,
@@ -380,17 +295,17 @@
             hostID: isHost ? (peer ? peer.id : null) : (conn ? conn.peer : null),
             mode: currentMatchMode
         };
-        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+        localStorage.setItem('fnaf_active_session', JSON.stringify(session));
     }
 
     function clearSession() {
-        localStorage.removeItem(STORAGE_KEYS.SESSION);
+        localStorage.removeItem('fnaf_active_session');
         const prompt = document.getElementById('reconnect-prompt');
         if(prompt) prompt.style.display = 'none';
     }
 
     function checkSession() {
-        const sessionStr = localStorage.getItem(STORAGE_KEYS.SESSION);
+        const sessionStr = localStorage.getItem('fnaf_active_session');
         if(sessionStr) {
             const session = JSON.parse(sessionStr);
             const prompt = document.getElementById('reconnect-prompt');
@@ -499,30 +414,23 @@
     function hostRoom(existingID = null) {
         if (peer) peer.destroy();
         isHost = true;
-        // use the host's username as the PeerJS ID (fallback to existingID when restoring session)
-        const roomCode = existingID || normalizePeerID(myName);
-        if(!roomCode) {
-            alert("Please set a valid username before hosting!");
-            return;
-        }
+        const idToUse = existingID || myName.replace(/\s+/g, '_');
         
-        peer = new Peer(roomCode, peerConfig); 
+        peer = new Peer(idToUse, peerConfig); 
         
         peer.on('open', (id) => {
-            updatePeerStatus('hosting (' + roomCode + ')');
+            updatePeerStatus('online (' + id + ')');
             roomPlayers = [{ name: myName, isHost: true }];
             if(existingID) {
                 showScreen('game-ui');
                 if(myTargetForOpponent) {
                     lockTarget(myTargetForOpponent, myTargetObj.img);
                 } else {
-                    renderMatchBoard(GAME_MODES.CHOOSE);
+                    renderMatchBoard('choose');
                 }
             } else {
                 showScreen('screen-lobby');
-                document.getElementById('lobby-title').innerText = "HOSTING";
-                document.getElementById('room-code-display').style.display = 'block';
-                document.getElementById('room-code-text').innerText = roomCode;
+                document.getElementById('lobby-title').innerText = "HOST ID: " + id;
                 renderRoster();
             }
         });
@@ -530,8 +438,8 @@
         peer.on('error', (err) => {
             console.error('Peer Error:', err.type);
             if(err.type === 'unavailable-id') {
-                alert("Username already in use. Please choose a different name.");
-                hostRoom();
+                alert("This username is already online. Please try a different name.");
+                logout();
             }
             updatePeerStatus('Error: ' + err.type, true);
         });
@@ -555,39 +463,27 @@
 
     function connectToPeer(existingID = null) {
         if (peer) peer.destroy();
-        // we treat the join field as the host's username
-        const roomCode = existingID || normalizePeerID(document.getElementById('join-room-id').value);
-        if(!roomCode) {
-            alert("Please enter a host username!");
-            return;
-        }
-        if(!roomCode || roomCode.length === 0) {
-            alert("Please enter a host username!");
-            return;
-        }
+        const targetID = existingID || document.getElementById('join-room-id').value.trim().replace(/\s+/g, '_');
+        if(!targetID) return;
         
         peer = new Peer(peerConfig);
         
         peer.on('open', () => {
-            updatePeerStatus('connecting to ' + roomCode + '...');
-            conn = peer.connect(roomCode, { reliable: true });
+            updatePeerStatus('searching for host...');
+            conn = peer.connect(targetID, { reliable: true });
             
             conn.on('open', () => {
                 updatePeerStatus('connected');
                 conn.send({ type: 'JOIN', name: myName });
                 isHost = false;
-                if(!existingID) {
-                    document.getElementById('room-code-display').style.display = 'none';
-                    showScreen('screen-lobby');
-                }
+                if(!existingID) showScreen('screen-lobby');
             });
 
             conn.on('data', (data) => handleData(data));
             
             conn.on('error', (err) => {
-                alert("Could not connect. Check the host username and try again.");
-                updatePeerStatus('connection failed', true);
-                showScreen('screen-join');
+                alert("Could not connect to friend. Ensure their name is correct.");
+                updatePeerStatus('fail', true);
             });
 
             conn.on('close', () => {
@@ -611,12 +507,12 @@
             roomPlayers = [{ name: data.hostName, isHost: true }, { name: myName, isHost: false }]; 
             renderRoster(); 
         }
-        if(data.type === 'START') { activeRoster = data.roster; resetGameState(); showScreen('game-ui'); renderMatchBoard(GAME_MODES.CHOOSE); saveSession(); }
+        if(data.type === 'START') { activeRoster = data.roster; resetGameState(); showScreen('game-ui'); renderMatchBoard('choose'); saveSession(); }
         if(data.type === 'TARGET_SET') { opponentTargetForMe = data.target; checkSync(); saveSession(); }
         if(data.type === 'GAME_OVER') { clearSession(); showEndScreen(data.result, data.guesser, data.guessedChar, data.opponentTarget); }
     }
 
-    // ===== PEER CONNECTION MANAGEMENT (HOST & CLIENT) =====
+    function handleTermination(reason) { alert(reason); disconnect(true); }
 
     function signalStart() {
         if(roomPlayers.length < 2) return alert("You need at least 2 players to start a match!");
@@ -627,25 +523,20 @@
         activeRoster = roster;
         resetGameState();
         showScreen('game-ui');
-        renderMatchBoard(GAME_MODES.CHOOSE);
+        renderMatchBoard('choose');
     }
 
-    // ===== GAMEPLAY LOGIC & MATCH STATE =====
-
     function resetGameState() {
-        myTargetForOpponent = null; 
-        opponentTargetForMe = null; 
-        myTargetObj = null;
-        flippedCards.clear(); 
-        historyStack = []; 
-        redoStack = []; 
-        updateHistoryButtons();
+        myTargetForOpponent = null; opponentTargetForMe = null; myTargetObj = null;
+        flippedCards.clear(); historyStack = []; redoStack = []; updateHistoryButtons();
         document.getElementById('match-search').value = "";
         document.getElementById('target-display').innerText = "CHOOSING...";
         document.getElementById('user-tag').innerText = myName.toUpperCase();
         document.getElementById('game-status').innerText = "SELECT YOUR ANIMATRONIC";
         document.getElementById('invert-btn').style.display = 'none';
     }
+
+    function refreshMatchBoard() { renderMatchBoard(currentMatchMode); }
 
     function toggleFlipState(name, cardElement) {
         saveHistory([name]);
@@ -663,13 +554,13 @@
         currentMatchMode = mode;
         const board = document.getElementById('game-board');
         board.innerHTML = '';
-        const btnClass = mode === GAME_MODES.CHOOSE ? 'menu-btn btn-choose' : 'menu-btn btn-guess';
+        const btnClass = mode === 'choose' ? 'menu-btn btn-choose' : 'menu-btn btn-guess';
         const query = document.getElementById('match-search').value.toLowerCase();
         
         const jumpSelect = document.getElementById('match-jump');
         jumpSelect.innerHTML = '<option value="">JUMP TO...</option>';
 
-        GAME_CATEGORIES.forEach(cat => {
+        categories.forEach(cat => {
             const section = document.createElement('div');
             section.className = 'section-group';
             section.id = `section-${cat.id}-game-board`;
@@ -687,7 +578,7 @@
             
             let count = 0;
             const catItems = activeRoster.filter(char => {
-                const globalIndex = MASTER_ROSTER.findIndex(m => m.name === char.name);
+                const globalIndex = masterRoster.findIndex(m => m.name === char.name);
                 return globalIndex >= cat.range[0] && globalIndex <= cat.range[1];
             });
 
@@ -697,8 +588,8 @@
                 const card = document.createElement('div');
                 card.className = 'card' + (flippedCards.has(char.name) ? ' flipped' : '');
                 card.dataset.name = char.name;
-                card.innerHTML = `<div class="card-inner"><div class="card-front" style="position:relative;"><div class="zoom-btn" onclick="event.stopPropagation(); showZoom('${char.img}','${char.name}')">🔍</div><img src="${char.img}" style="width:140px; height:140px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/140/800/fff?text=?'"><div style="font-size:11px; margin-top:5px; font-weight:bold;">${char.name}</div><button class="${btnClass}" style="padding:4px; font-size:10px; margin-top:5px;" onclick="event.stopPropagation(); ${mode===GAME_MODES.CHOOSE?`lockTarget('${char.name}', '${char.img}')`:`confirmGuess('${char.name}', '${char.img}')`}">${mode.toUpperCase()}</button></div><div class="card-back">OUT</div></div>`;
-                if(mode === GAME_MODES.GUESS) card.onclick = () => toggleFlipState(char.name, card);
+                card.innerHTML = `<div class="card-inner"><div class="card-front"><img src="${char.img}" style="width:140px; height:140px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/140/800/fff?text=?'"><div style="font-size:11px; margin-top:5px; font-weight:bold;">${char.name}</div><button class="${btnClass}" style="padding:4px; font-size:10px; margin-top:5px;" onclick="event.stopPropagation(); ${mode==='choose'?`lockTarget('${char.name}', '${char.img}')`:`confirmGuess('${char.name}', '${char.img}')`}">${mode.toUpperCase()}</button></div><div class="card-back">OUT</div></div>`;
+                if(mode === 'guess') card.onclick = () => toggleFlipState(char.name, card);
                 charGrid.appendChild(card);
             });
             
@@ -714,10 +605,10 @@
 
     function bulkMatchToggle(catId, state) {
         if(!confirm("Are you sure?")) return;
-        const cat = GAME_CATEGORIES.find(c => c.id === catId);
+        const cat = categories.find(c => c.id === catId);
         const affected = [];
         activeRoster.forEach(char => {
-            const globalIndex = MASTER_ROSTER.findIndex(m => m.name === char.name);
+            const globalIndex = masterRoster.findIndex(m => m.name === char.name);
             if(globalIndex >= cat.range[0] && globalIndex <= cat.range[1]) {
                 affected.push(char.name);
             }
@@ -810,14 +701,7 @@
         }
     }
 
-    
-    function openBoardManager() {
-        // show the list of boards and allow the user to manage them
-        showScreen('screen-boards');
-        renderBoardList();
-    }
-
-    // ===== BOARD MANAGER & EDITOR =====
+    function openBoardManager() { document.getElementById('editor-search').value = ""; showScreen('screen-boards'); renderBoardList(); }
 
     function renderBoardList() {
         const list = document.getElementById('board-list');
@@ -856,7 +740,7 @@
     function createNewBoard() {
         const name = document.getElementById('new-board-name').value.trim();
         if(!name || savedBoards[name]) return;
-        savedBoards[name] = MASTER_ROSTER.map(c => ({...c}));
+        savedBoards[name] = masterRoster.map(c => ({...c}));
         saveUserData();
         renderBoardList();
     }
@@ -868,7 +752,7 @@
         grid.innerHTML = '';
         const query = document.getElementById('editor-search').value.toLowerCase();
         
-        GAME_CATEGORIES.forEach(cat => {
+        categories.forEach(cat => {
             const section = document.createElement('div');
             section.className = 'section-group';
             section.id = `section-${cat.id}-editor-grid`;
@@ -893,7 +777,7 @@
                 card.dataset.id = char.id;
                 card.onmousedown = (e) => { e.preventDefault(); startDragSelect(char.id); };
                 card.onmouseenter = () => { if(isDragging) handleToggle(char.id); };
-                card.innerHTML = `<div style="position:relative; width:100%; height:100%;"><div class="zoom-btn-mini" onclick="showZoom('${char.img}','${char.name}')">🔍</div><img src="${char.img}" class="card-img-small" onerror="this.src='https://via.placeholder.com/160/800/fff?text=?'"></div><div class="card-name-tag">${char.name}</div>`;
+                card.innerHTML = `<img src="${char.img}" class="card-img-small" onerror="this.src='https://via.placeholder.com/160/800/fff?text=?'"><div class="card-name-tag">${char.name}</div>`;
                 charGrid.appendChild(card);
             });
             
@@ -906,7 +790,7 @@
     }
 
     function toggleCategory(catId, state) {
-        const cat = GAME_CATEGORIES.find(c => c.id === catId);
+        const cat = categories.find(c => c.id === catId);
         if(!cat) return;
         for(let i = cat.range[0]; i <= cat.range[1]; i++) {
             savedBoards[currentBoardName][i].enabled = state;
@@ -938,20 +822,18 @@
     function saveEditor() { saveUserData(); openBoardManager(); }
     function factoryReset() { if(confirm("Wipe all data?")) { localStorage.clear(); location.reload(); } }
 
-    // ===== AUDIO & SETTINGS =====
-    
     function updateVolume(val) {
         const a = document.getElementById('bg-audio');
         if (a) {
             a.volume = val;
-            localStorage.setItem(STORAGE_KEYS.VOLUME, val);
+            localStorage.setItem('fnaf_volume', val);
         }
     }
 
     function initAudio() { 
         const a = document.getElementById('bg-audio'); 
         if(a) { 
-            const savedVol = localStorage.getItem(STORAGE_KEYS.VOLUME) || DEFAULT_VOLUME;
+            const savedVol = localStorage.getItem('fnaf_volume') || 0.2;
             a.volume = savedVol;
             const slider = document.getElementById('volume-slider');
             if(slider) slider.value = savedVol;
@@ -969,36 +851,6 @@
         refreshMatchBoard();
         saveSession();
     }
-
-    // ===== UTILITY & HELPER FUNCTIONS =====
-    
-    function refreshMatchBoard() { renderMatchBoard(currentMatchMode); }
-
-    function showZoom(img, name) {
-        const overlay = document.getElementById('zoom-overlay');
-        if(!overlay) return;
-        document.getElementById('zoom-img').src = img;
-        document.getElementById('zoom-name').innerText = name || '';
-        overlay.classList.add('show');
-        playBtnSfx();
-    }
-    function hideZoom() {
-        const overlay = document.getElementById('zoom-overlay');
-        if(overlay) overlay.classList.remove('show');
-    }
-    document.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape') hideZoom();
-    });
-
-    // random flicker effect (occasional brief fade)
-    (function(){
-        function flash() {
-            document.body.classList.add('flick');
-            setTimeout(()=>document.body.classList.remove('flick'), 150);
-            setTimeout(flash, Math.random()*5000 + 2000);
-        }
-        flash();
-    })();
 </script>
 </body>
 </html>
