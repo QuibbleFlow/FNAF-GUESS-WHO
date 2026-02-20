@@ -10,12 +10,13 @@
         body { 
             background-image: url('background.jpeg'); background-size: cover; background-attachment: fixed;
             background-color: var(--fnaf-bg); color: #e0e0e0; font-family: 'Courier New', monospace; 
-            margin: 0; overflow-x: hidden; overflow-y: auto; user-select: none; 
+            margin: 0; overflow: hidden; user-select: none; 
             animation: bgmotion 120s linear infinite, glitch 15s infinite;
         }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1;
-            animation: flicker 3s infinite;
-        }        #zoom-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; z-index:6000; opacity:0; pointer-events:none; transition: opacity 0.25s ease-in-out; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
+        body.flick::before { animation: flicker 0.15s; }
+        .screen { overflow-y: auto; justify-content: flex-start; padding-top: 20px; }
+        .menu-box { max-height: 90vh; overflow-y: auto; }        #zoom-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; z-index:6000; opacity:0; pointer-events:none; transition: opacity 0.25s ease-in-out; }
         #zoom-overlay.show { opacity:1; pointer-events:auto; }
         #zoom-content { text-align:center; max-width:85%; max-height:85%; }
         #zoom-content img { max-width:100%; max-height:100%; border:2px solid #fff; }
@@ -38,7 +39,7 @@
             #target-panel { width: 80%; left: 50%; transform: translateX(-50%) translateY(-50%); height: auto; max-height: 80vh; }
             .char-grid { grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); }
         }
-        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); z-index: 2000; }
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: flex-start; background: rgba(0,0,0,0.95); z-index: 2000; }
         .active { display: flex; }
         .menu-box { background: #111; border: 2px solid var(--fnaf-red); padding: 30px; border-radius: 10px; text-align: center; width: 600px; max-width: 90vw; margin: 0 5vw; box-shadow: 0 0 30px rgba(128, 0, 0, 0.5); }
         
