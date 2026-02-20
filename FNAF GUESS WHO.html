@@ -10,14 +10,18 @@
         body { 
             background-image: url('background.jpeg'); background-size: cover; background-attachment: fixed;
             background-color: var(--fnaf-bg); color: #e0e0e0; font-family: 'Courier New', monospace; 
-            margin: 0; overflow-x: hidden; overflow-y: auto; user-select: none; 
+            margin: 0; overflow: hidden; user-select: none; 
             animation: bgmotion 120s linear infinite, glitch 15s infinite;
         }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1;
-            animation: flicker 3s infinite;
-        }
+        /* allow screens to scroll independently */
+        .screen { overflow-y: auto; }
+        .menu-box { max-height: 90vh; overflow-y: auto; }
+
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
+        body.flick::before { animation: flicker 0.15s; }
+
         @keyframes bgmotion { from {background-position:0 0;} to {background-position:2000px 0;} }
-        @keyframes flicker { 0%{opacity:0.8;} 5%{opacity:0.5;} 10%{opacity:0.9;} 15%{opacity:0.6;} 20%{opacity:0.8;} 100%{opacity:0.8;} }
+        @keyframes flicker { 0%{opacity:0.8;} 25%{opacity:0.3;} 50%{opacity:0.8;} 100%{opacity:0.8;} }
         @keyframes scanlines { 0%{opacity:0.15;} 50%{opacity:0.05;} 100%{opacity:0.15;} }
         @keyframes glitch { 0%,100%{transform: translate(0);} 3%{transform: translate(-5px,-3px);} 6%{transform: translate(4px,2px);} 9%{transform: translate(-2px,5px);} 12%{transform: translate(3px,-4px);} 15%{transform: translate(0);} }
         body::after { content:""; position:fixed; top:0; left:0; width:100%; height:100%; background-image: linear-gradient(rgba(0,0,0,0.03) 50%, transparent 50%); background-size:100% 4px; pointer-events:none; animation: scanlines 0.5s infinite; }
@@ -993,6 +997,16 @@
     document.addEventListener('keydown', (e) => {
         if(e.key === 'Escape') hideZoom();
     });
+
+    // random flicker effect (occasional brief fade)
+    (function(){
+        function flash() {
+            document.body.classList.add('flick');
+            setTimeout(()=>document.body.classList.remove('flick'), 150);
+            setTimeout(flash, Math.random()*5000 + 2000);
+        }
+        flash();
+    })();
 </script>
 </body>
 </html>
