@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FNAF Guess Who - Visual Architect XL (Fixed)</title>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
@@ -10,12 +11,32 @@
             background-image: url('background.jpeg'); background-size: cover; background-attachment: fixed;
             background-color: var(--fnaf-bg); color: #e0e0e0; font-family: 'Courier New', monospace; 
             margin: 0; overflow: hidden; user-select: none; 
+            animation: bgmotion 120s linear infinite, glitch 15s infinite;
         }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1;
+            animation: flicker 3s infinite;
+        }        #zoom-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; z-index:6000; opacity:0; pointer-events:none; transition: opacity 0.25s ease-in-out; }
+        #zoom-overlay.show { opacity:1; pointer-events:auto; }
+        #zoom-content { text-align:center; max-width:85%; max-height:85%; }
+        #zoom-content img { max-width:100%; max-height:100%; border:2px solid #fff; }
+        #zoom-name { color:#fff; margin-top:10px; font-size:18px; }
+        .zoom-btn { position:absolute; top:5px; right:5px; background:rgba(0,0,0,0.6); color:#fff; padding:2px 4px; border-radius:3px; font-size:12px; cursor:pointer; }
+        .zoom-btn:hover { background:rgba(255,255,255,0.2); }
+        .zoom-btn-mini { position:absolute; top:3px; right:3px; background:rgba(0,0,0,0.6); color:#fff; font-size:10px; padding:2px 3px; border-radius:3px; cursor:pointer; }
+        .zoom-btn-mini:hover { background:rgba(255,255,255,0.2); }        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: -1; }
         #top-left-ctrl { position: fixed; top: 10px; left: 10px; z-index: 3000; display: none; }
         #bottom-left-ctrl { position: fixed; bottom: 10px; left: 10px; z-index: 3000; }
         .tiny-btn { background: rgba(20,20,20,0.8); color: #666; border: 1px solid #333; padding: 5px 10px; font-size: 10px; cursor: pointer; text-transform: uppercase; margin-left: 5px; }
         .tiny-btn:hover { color: #fff; border-color: var(--fnaf-red); }
+        button:focus { outline: 2px solid var(--fnaf-green); outline-offset: 2px; }
+        .menu-btn:focus { outline: 2px solid var(--fnaf-green); outline-offset: 2px; }
+        /* responsive adjustments */
+        @media (max-width: 768px) {
+            .menu-box { width: 90%; padding: 20px; }
+            #editor-wrapper, #board-wrapper { left: 10px; right: 10px; top: 20px; bottom: 80px; }
+            #target-panel { width: 80%; left: 50%; transform: translateX(-50%) translateY(-50%); height: auto; max-height: 80vh; }
+            .char-grid { grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); }
+        }
         .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); z-index: 2000; }
         .active { display: flex; }
         .menu-box { background: #111; border: 2px solid var(--fnaf-red); padding: 30px; border-radius: 10px; text-align: center; width: 600px; box-shadow: 0 0 30px rgba(128, 0, 0, 0.5); }
@@ -68,9 +89,22 @@
         .cat-toggle-btn.off { background: #500; border-color: #f00; }
         .history-ctrl { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
         .highlight-action { outline: 3px solid var(--fnaf-green); outline-offset: 5px; z-index: 50; }
+        @keyframes bgmotion { from {background-position:0 0;} to {background-position:2000px 0;} }
+        @keyframes flicker { 0%{opacity:0.8;} 5%{opacity:0.5;} 10%{opacity:0.9;} 15%{opacity:0.6;} 20%{opacity:0.8;} 100%{opacity:0.8;} }
+        @keyframes scanlines { 0%{opacity:0.15;} 50%{opacity:0.05;} 100%{opacity:0.15;} }
+        @keyframes glitch { 0%,100%{transform: translate(0);} 3%{transform: translate(-5px,-3px);} 6%{transform: translate(4px,2px);} 9%{transform: translate(-2px,5px);} 12%{transform: translate(3px,-4px);} 15%{transform: translate(0);} }
+        @keyframes border-flicker { 0%,100%{border-color: var(--fnaf-red);} 50%{border-color: var(--fnaf-bright-red);} }
     </style>
 </head>
 <body onmouseup="stopDragSelect()">
+
+<!-- zoom overlay for card magnification -->
+<div id="zoom-overlay" onclick="if(event.target===this)hideZoom()">
+    <div id="zoom-content">
+        <img id="zoom-img" src="" alt="">
+        <div id="zoom-name"></div>
+    </div>
+</div>
 <audio id="bg-audio" loop><source src="background-music.mp3" type="audio/mpeg"></audio>
 <audio id="sfx-btn"><source src="button.mp3" type="audio/mpeg"></audio>
 
@@ -85,10 +119,20 @@
 <div id="bottom-left-ctrl"><button class="tiny-btn" onclick="factoryReset()">FACTORY RESET</button></div>
 
 <div id="screen-login" class="screen active"><div class="menu-box"><h1 style="color: var(--fnaf-red);">FNAF GUESS WHO</h1><input type="text" id="username-input" style="background:#000; border:1px solid #444; color:var(--fnaf-green); padding:10px; text-align:center;" placeholder="ENTER USERNAME"><button class="menu-btn" onclick="confirmLogin()">ENTER TERMINAL</button></div></div>
-<div id="screen-main" class="screen"><div class="menu-box"><h2 id="welcome-msg" style="color: var(--fnaf-green);">WELCOME</h2><div id="reconnect-prompt" style="display:none; margin-bottom: 20px; padding: 15px; border: 1px solid var(--fnaf-green);"><p id="resume-text" style="font-size: 12px; color: #fff;">UNFINISHED MATCH DETECTED.</p><button class="menu-btn" style="background: #040;" onclick="resumeSession()">RECONNECT TO GAME</button><button class="menu-btn" style="font-size: 10px; height: 30px; padding: 0;" onclick="clearSession()">DISCARD SESSION</button></div><button class="menu-btn" onclick="showScreen('screen-join')">JOIN ROOM</button><button class="menu-btn" onclick="hostRoom()">HOST ROOM</button><button class="menu-btn" onclick="openBoardManager()">BOARDS EDITOR</button></div></div>
+<div id="screen-main" class="screen"><div class="menu-box"><h2 id="welcome-msg" style="color: var(--fnaf-green);">WELCOME</h2><div id="reconnect-prompt" style="display:none; margin-bottom: 20px; padding: 15px; border: 1px solid var(--fnaf-green);"><p id="resume-text" style="font-size: 12px; color: #fff;">UNFINISHED MATCH DETECTED.</p><button class="menu-btn" style="background: #040;" onclick="resumeSession()">RECONNECT TO GAME</button><button class="menu-btn" style="font-size: 10px; height: 30px; padding: 0;" onclick="clearSession()">DISCARD SESSION</button></div><button class="menu-btn" onclick="showScreen('screen-join')">JOIN ROOM</button><button class="menu-btn" onclick="hostRoom()">HOST ROOM</button><button class="menu-btn" onclick="openBoardManager()">BOARDS EDITOR</button><button class="menu-btn" onclick="showScreen('screen-help')">HOW TO PLAY</button></div></div>
 <div id="screen-join" class="screen"><div class="menu-box"><h2 style="color: var(--fnaf-red);">JOIN ROOM</h2><p style="font-size: 10px; color: #666; margin-bottom: 10px;">ENTER THE HOST USERNAME YOUR FRIEND IS USING</p><input type="text" id="join-room-id" style="background:#000; border:1px solid #444; color:var(--fnaf-green); padding:10px; width:80%; text-transform: uppercase; letter-spacing: 2px; text-align: center; font-size: 16px; font-weight: bold;" placeholder="HOST NAME" maxlength="32"><button class="menu-btn" onclick="connectToPeer()">CONNECT</button><button class="menu-btn" onclick="showScreen('screen-main')">BACK</button></div></div>
 <div id="screen-lobby" class="screen"><div class="menu-box"><h2 id="lobby-title" style="color: var(--fnaf-red);">LOBBY</h2><div id="room-code-display" style="background: #1a1a1a; border: 2px solid var(--fnaf-green); border-radius: 8px; padding: 15px; margin-bottom: 20px; text-align: center; display: none;"><p style="font-size: 11px; color: #888; margin: 0 0 8px 0;">HOST USERNAME</p><div style="font-size: 28px; font-weight: bold; letter-spacing: 4px; color: var(--fnaf-green); font-family: 'Courier New', monospace;" id="room-code-text">---</div><p style="font-size: 10px; color: #666; margin: 8px 0 0 0;">SHARE THIS NAME WITH YOUR FRIEND</p></div><div id="player-roster" class="data-list"></div><div id="host-controls" style="display:none;"><select id="lobby-board-select" style="width:100%; background:#222; color:white; padding:10px; margin-bottom:20px;"></select><button class="menu-btn" id="start-btn" onclick="signalStart()">START MATCH</button></div><div id="guest-waiting" style="display:none; color: #666; font-size: 12px; margin-bottom: 20px;">WAITING FOR HOST TO START...</div><button class="menu-btn" onclick="disconnect()">DISCONNECT</button></div></div>
 <div id="screen-boards" class="screen"><div class="menu-box"><h2 style="color: var(--fnaf-red);">YOUR BOARDS</h2><div id="board-list" class="data-list"></div><input type="text" id="new-board-name" style="background:#000; border:1px solid #444; color:var(--fnaf-green); padding:10px;" placeholder="NEW NAME"><button class="menu-btn" onclick="createNewBoard()">CREATE NEW</button><button class="menu-btn" onclick="showScreen('screen-main')">BACK</button></div></div>
+
+<div id="screen-help" class="screen"><div class="menu-box" style="width:600px;">
+        <h2 style="color: var(--fnaf-red);">HOW TO PLAY</h2>
+        <p style="font-size: 12px; text-align:left;">1. Enter a username and either host a room or join a friend.<br>
+        2. In the lobby choose a board with animatronics to include.<br>
+        3. When the match starts, pick your animatronic secretly.<br>
+        4. After both players have chosen, flip cards to mark outs and guess your opponent's character.<br>
+        5. The first correct guess wins!</p>
+        <button class="menu-btn" onclick="showScreen('screen-main')">BACK</button>
+    </div></div>
 
 <div id="screen-editor" class="screen">
     <div id="editor-wrapper" onmouseleave="stopDragSelect()">
@@ -647,7 +691,7 @@
                 const card = document.createElement('div');
                 card.className = 'card' + (flippedCards.has(char.name) ? ' flipped' : '');
                 card.dataset.name = char.name;
-                card.innerHTML = `<div class="card-inner"><div class="card-front"><img src="${char.img}" style="width:140px; height:140px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/140/800/fff?text=?'"><div style="font-size:11px; margin-top:5px; font-weight:bold;">${char.name}</div><button class="${btnClass}" style="padding:4px; font-size:10px; margin-top:5px;" onclick="event.stopPropagation(); ${mode===GAME_MODES.CHOOSE?`lockTarget('${char.name}', '${char.img}')`:`confirmGuess('${char.name}', '${char.img}')`}">${mode.toUpperCase()}</button></div><div class="card-back">OUT</div></div>`;
+                card.innerHTML = `<div class="card-inner"><div class="card-front" style="position:relative;"><div class="zoom-btn" onclick="event.stopPropagation(); showZoom('${char.img}','${char.name}')">🔍</div><img src="${char.img}" style="width:140px; height:140px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/140/800/fff?text=?'"><div style="font-size:11px; margin-top:5px; font-weight:bold;">${char.name}</div><button class="${btnClass}" style="padding:4px; font-size:10px; margin-top:5px;" onclick="event.stopPropagation(); ${mode===GAME_MODES.CHOOSE?`lockTarget('${char.name}', '${char.img}')`:`confirmGuess('${char.name}', '${char.img}')`}">${mode.toUpperCase()}</button></div><div class="card-back">OUT</div></div>`;
                 if(mode === GAME_MODES.GUESS) card.onclick = () => toggleFlipState(char.name, card);
                 charGrid.appendChild(card);
             });
@@ -843,7 +887,7 @@
                 card.dataset.id = char.id;
                 card.onmousedown = (e) => { e.preventDefault(); startDragSelect(char.id); };
                 card.onmouseenter = () => { if(isDragging) handleToggle(char.id); };
-                card.innerHTML = `<img src="${char.img}" class="card-img-small" onerror="this.src='https://via.placeholder.com/160/800/fff?text=?'"><div class="card-name-tag">${char.name}</div>`;
+                card.innerHTML = `<div style="position:relative; width:100%; height:100%;"><div class="zoom-btn-mini" onclick="showZoom('${char.img}','${char.name}')">🔍</div><img src="${char.img}" class="card-img-small" onerror="this.src='https://via.placeholder.com/160/800/fff?text=?'"></div><div class="card-name-tag">${char.name}</div>`;
                 charGrid.appendChild(card);
             });
             
@@ -923,6 +967,22 @@
     // ===== UTILITY & HELPER FUNCTIONS =====
     
     function refreshMatchBoard() { renderMatchBoard(currentMatchMode); }
+
+    function showZoom(img, name) {
+        const overlay = document.getElementById('zoom-overlay');
+        if(!overlay) return;
+        document.getElementById('zoom-img').src = img;
+        document.getElementById('zoom-name').innerText = name || '';
+        overlay.classList.add('show');
+        playBtnSfx();
+    }
+    function hideZoom() {
+        const overlay = document.getElementById('zoom-overlay');
+        if(overlay) overlay.classList.remove('show');
+    }
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') hideZoom();
+    });
 </script>
 </body>
 </html>
