@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style>
         :root { --fnaf-red: #800; --fnaf-bright-red: #f00; --fnaf-bg: #050505; --fnaf-green: #0f0; --fnaf-panel: rgba(15, 15, 15, 0.98); }
+        html, body { height: 100%; width: 100%; }
         body { 
             background-image: url('background.jpeg'); background-size: cover; background-attachment: fixed;
             background-color: var(--fnaf-bg); color: #e0e0e0; font-family: 'Courier New', monospace; 
@@ -17,7 +18,9 @@
         body.flick::before { animation: flicker 0.15s; }
         .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); z-index: 2000; }
         .active { display: flex; }
-        .menu-box { background: #111; border: 2px solid var(--fnaf-red); padding: 30px; border-radius: 10px; text-align: center; width: 600px; box-shadow: 0 0 30px rgba(128, 0, 0, 0.5); }        #zoom-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; z-index:6000; opacity:0; pointer-events:none; transition: opacity 0.25s ease-in-out; }
+        .menu-box { background: #111; border: 2px solid var(--fnaf-red); padding: 30px; border-radius: 10px; text-align: center; width: 600px; box-shadow: 0 0 30px rgba(128, 0, 0, 0.5); animation: border-flicker 4s infinite; }
+        
+        #zoom-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); display:flex; align-items:center; justify-content:center; z-index:6000; opacity:0; pointer-events:none; transition: opacity 0.25s ease-in-out; }
         #zoom-overlay.show { opacity:1; pointer-events:auto; }
         #zoom-content { text-align:center; max-width:85%; max-height:85%; }
         #zoom-content img { max-width:100%; max-height:100%; border:2px solid #fff; }
